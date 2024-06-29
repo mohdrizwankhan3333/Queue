@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure representing each element in the queue
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+// Queue structure
+typedef struct {
+    Node *front;
+    Node *rear;
+} Queue;
+
+// Function to check if the queue is empty
+int isEmpty(Queue *q) {
+    return q->front == NULL;
+}
+
+// Function to perform enqueue (insert) operation
+void enqueue(Queue *q, int x) {
+    // Create a new node
+    Node *p = (Node *)malloc(sizeof(Node));
+    if (p == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Set data and next pointers
+    p->data = x;
+    p->next = NULL;
+
+    // If the queue is empty, set both front and rear to the new node
+    if (isEmpty(q)) {
+        q->front = p;
+        q->rear = p;
+    } else {
+        // Otherwise, link the current rear to the new node and update the rear
+        q->rear->next = p;
+        q->rear = p;
+    }
+}
+
+// Function to perform dequeue (remove) operation
+int dequeue(Queue *q) {
+    // Check for queue underflow
+    if (isEmpty(q)) {
+        fprintf(stderr, "Queue underflow\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Retrieve the data from the front node
+    int x = q->front->data;
+
+    // If there is only one element in the queue, set both front and rear to NULL
+    if (q->front == q->rear) {
+        free(q->front);
+        q->front = NULL;
+        q->rear = NULL;
+    } else {
+        // Otherwise, move the front pointer to the next node
+        Node *temp = q->front;
+        q->front = q->front->next;
+        free(temp);
+    }
+
+    return x;
+}
+
+// Function to free the memory used by the queue
+void freeQueue(Queue *q) {
+    while (!isEmpty(q)) {
+        dequeue(q);
+    }
+}
+
+int main() {
+    Queue myQueue;
+    myQueue.front = NULL;
+    myQueue.rear = NULL;
+
+    // Enqueue some elements
+    enqueue(&myQueue, 10);
+    enqueue(&myQueue, 20);
+    enqueue(&myQueue, 30);
+
+    // Dequeue and print elements
+    while (!isEmpty(&myQueue)) {
+        printf("Dequeued: %d\n", dequeue(&myQueue));
+    }
+
+    // Free memory used by the queue
+    freeQueue(&myQueue);
+
+    return 0;
+}
